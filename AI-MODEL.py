@@ -123,7 +123,7 @@ for msg in st.session_state.chat_history:
 
 # ------------------- Input Bar -------------------
 
-if user_input := st.chat_input("Ask about crop or soil..."):
+if user_input := st.chat_input("फसल या मिट्टी के बारे में पूछें..."):
     with st.chat_message("user"):
         st.markdown(user_input)
     
