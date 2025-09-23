@@ -12,7 +12,7 @@ from streamlit_webrtc import webrtc_streamer, WebRtcMode, AudioProcessorBase
 from typing import List
 
 # ------------------- Config -------------------
-st.set_page_config(page_title="ChatGPT-style Crop Assistant", layout="wide")
+st.set_page_config(page_title="AgroMind", layout="wide")
 st.title("🌾 AI Crop Recommendation Assistant")
 
 # ------------------- Load Env -------------------
