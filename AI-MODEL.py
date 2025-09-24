@@ -12,15 +12,15 @@ from streamlit_webrtc import webrtc_streamer, WebRtcMode, AudioProcessorBase
 from typing import List
 
 # ------------------- Config -------------------
-st.set_page_config(page_title="ChatGPT-style Crop Assistant", layout="wide")
-st.title("🌾 AI Crop Recommendation Assistant")
+st.set_page_config(page_title="MVP_AgroMind", layout="wide")
+st.title("🌾 AI फसल सहायक")
 
 # ------------------- Load Env -------------------
 load_dotenv()
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 WEATHER_API_KEY = os.getenv("WEATHER_API_KEY")
 GROQ_BASE = "https://api.groq.com/openai/v1"
-if not GROQ_API_KEY: st.error("Set GROQ_API_KEY in .env"); st.stop()
+if not GROQ_API_KEY: st.error("कृपया .env फाइल में GROQ_API_KEY सेट करें"); st.stop()
 
 # ------------------- Session State -------------------
 if "chat_history" not in st.session_state: st.session_state.chat_history = []
@@ -57,8 +57,8 @@ lat, lon = get_user_location()
 soil_data = fetch_soil(lat, lon)
 weather_data = fetch_weather(lat, lon)
 
-st.sidebar.write("🧪 Soil Data"); st.sidebar.json(soil_data)
-st.sidebar.write("🌤 Weather Data"); st.sidebar.json(weather_data)
+st.sidebar.write("🧪 मिट्टी की जानकारी"); st.sidebar.json(soil_data)
+st.sidebar.write("🌤 मौसम की जानकारी"); st.sidebar.json(weather_data)
 
 # ------------------- ML Crop Model -------------------
 def prepare_features(soil, weather):
@@ -78,7 +78,7 @@ def train_model(X):
 clf=train_model(X_scaled)
 crop_map={0:"🌾 गेहूँ (Wheat)",1:"🌱 धान (Rice)",2:"🌽 मक्का (Maize)"}
 predicted_crop=crop_map.get(clf.predict(X_scaled)[0],"Unknown")
-st.sidebar.success(f"✅ ML Suggestion: {predicted_crop}")
+st.sidebar.success(f"✅ AI का सुझाव: {predicted_crop}")
 
 # ------------------- Groq LLM -------------------
 MODEL_NAME="gemma2-9b-it"
@@ -123,7 +123,7 @@ for msg in st.session_state.chat_history:
 
 # ------------------- Input Bar -------------------
 
-if user_input := st.chat_input("Ask about crop or soil..."):
+if user_input := st.chat_input("फसल या मिट्टी के बारे में पूछें..."):
     with st.chat_message("user"):
         st.markdown(user_input)
     
@@ -149,12 +149,12 @@ if user_input := st.chat_input("Ask about crop or soil..."):
         st.session_state.chat_history.append({"role": "assistant", "content": full_response})
     
     except Exception as e:
-        st.error(f"LLM failed: {e}")
+        st.error(f"LLM में समस्या: {e}")
 
 
 with st.sidebar:
-    st.subheader("Upload Audio or Use Mic")
-    uploaded_file = st.file_uploader("Upload an audio file", type=["wav", "mp3", "m4a"])
+    st.subheader("ऑडियो अपलोड करें या माइक का उपयोग करें")
+    uploaded_file = st.file_uploader("ऑडियो फाइल अपलोड करें", type=["wav", "mp3", "m4a"])
     if uploaded_file:
         with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(uploaded_file.name)[1]) as tmp:
             tmp.write(uploaded_file.read())
@@ -164,13 +164,13 @@ with st.sidebar:
             st.session_state.chat_history.append({"role": "user", "content": text})
             st.experimental_rerun()
         except Exception as e:
-            st.error(f"Audio transcription failed: {e}")
+            st.error(f"ऑडियो ट्रांसक्रिप्शन में समस्या: {e}")
 
     st.markdown("---")
-    st.subheader("Use Microphone")
+    st.subheader("माइक्रोफोन का उपयोग करें")
     ctx = webrtc_streamer(key="mic_stream", mode=WebRtcMode.SENDRECV, audio_processor_factory=AudioProcessor, media_stream_constraints={"audio": True, "video": False}, async_processing=True)
     if ctx.audio_processor and ctx.audio_processor.audio_frames:
-        if st.button("🎤 Send Mic", key="mic_btn"):
+        if st.button("🎤 माइक से भेजें", key="mic_btn"):
             with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp:
                 save_wav(ctx.audio_processor.audio_frames, tmp.name)
                 mic_path = tmp.name
@@ -179,4 +179,4 @@ with st.sidebar:
                 st.session_state.chat_history.append({"role": "user", "content": mic_text})
                 st.experimental_rerun()
             except Exception as e:
-                st.error(f"Mic transcription failed: {e}")
+                st.error(f"माइक्रोफोन ट्रांसक्रिप्शन में समस्या: {e}")
